@@ -53,24 +53,6 @@ class Contact(models.Model):
     def __str__(self):
         return f'{self.name} ({self.phone_number})'
 
-
-# class SpamReport(models.Model):
-#     user = models.ForeignKey(User, related_name='spam_reports', on_delete=models.CASCADE)
-#     phone_number = models.CharField(max_length=15)
-#     is_spam = models.BooleanField(default=False)
-#     reported_on = models.DateTimeField(auto_now_add=True)
-
-#     @classmethod
-#     def spam_likelihood(cls, phone_number):
-#         reports = cls.objects.filter(phone_number=phone_number)
-#         total_reports = reports.count()
-#         spam_reports = reports.filter(is_spam=True).count()
-
-#         if total_reports == 0:
-#             return 0.0  # No reports, no likelihood
-#         return round((spam_reports / total_reports) * 100, 2)  # Return percentage rounded to 2 decimals
-
-
 class SpamReport(models.Model):
     user = models.ForeignKey(User, related_name='spam_reports', on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=15)

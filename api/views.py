@@ -267,6 +267,7 @@ class SearchByNameView(APIView):
         combined_results.sort(key=lambda x: (not x['name'].lower().startswith(query.lower()), x['name'].lower()))
 
         return Response(combined_results, status=status.HTTP_200_OK)
+        
 
 
 
@@ -352,5 +353,6 @@ class SearchByPhoneNumberView(APIView):
 
         if combined_results:
             return Response(combined_results, status=status.HTTP_200_OK)
-
-        return Response({"error": "Phone number not found."}, status=status.HTTP_404_NOT_FOUND)
+        # Return NO contact found in database and status code 200
+        return Response({"Phone number not found in Database"}, status=status.HTTP_200_OK)
+        

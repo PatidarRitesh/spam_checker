@@ -1,17 +1,26 @@
-
 from rest_framework import status
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import serializers
-from django.contrib.auth import authenticate
-# from django.conf import settings
 from .serializers import UserSerializer
 from django.db.utils import IntegrityError
-
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from .models import User, Contact, SpamReport
+from .serializers import UserSerializer, ContactSerializer, SpamReportSerializer
+from rest_framework_simplejwt.tokens import RefreshToken  
+from rest_framework.permissions import IsAuthenticated
+from .serializers import ContactSerializer
+from rest_framework import status
+from .serializers import ContactSerializer
+from rest_framework.permissions import IsAuthenticated
 from .models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+  
+
 @api_view(['POST'])
 def register(request):
     if request.method == 'POST':
@@ -84,26 +93,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-# api/views.py
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .models import User, Contact, SpamReport
-from .serializers import UserSerializer, ContactSerializer, SpamReportSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from .serializers import ContactSerializer
-
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import ContactSerializer
-from rest_framework.permissions import IsAuthenticated
 
 class ContactListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -165,16 +155,6 @@ class CustomTokenObtainPairSerializer(serializers.Serializer):
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-from rest_framework.views import APIView
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import SpamReportSerializer
-from rest_framework.permissions import IsAuthenticated
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import SpamReportSerializer
-from rest_framework.permissions import IsAuthenticated
 
 class SpamReportView(APIView):
     permission_classes = [IsAuthenticated]
@@ -267,7 +247,7 @@ class SearchByNameView(APIView):
         combined_results.sort(key=lambda x: (not x['name'].lower().startswith(query.lower()), x['name'].lower()))
 
         return Response(combined_results, status=status.HTTP_200_OK)
-        
+
 
 
 

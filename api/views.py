@@ -161,3 +161,86 @@ class CustomTokenObtainPairSerializer(serializers.Serializer):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+
+# api/views.py
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .models import User, Contact, SpamReport
+from .serializers import UserSerializer, ContactSerializer, SpamReportSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+# User registration and login views remain the same
+# ...
+
+# Contact API Views
+class ContactListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get the logged-in user's contacts
+        contacts = Contact.objects.filter(user=request.user)
+        serializer = ContactSerializer(contacts, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Create a new contact for the logged-in user
+        request.data['user'] = request.user.id  # Automatically associate the user with the contact
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Spam Report API Views
+class SpamReportListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get the logged-in user's spam reports
+        spam_reports = SpamReport.objects.filter(user=request.user)
+        serializer = SpamReportSerializer(spam_reports, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        # Create a new spam report for the logged-in user
+        request.data['user'] = request.user.id  # Automatically associate the user with the spam report
+        serializer = SpamReportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomTokenObtainPairSerializer(serializers.Serializer):
+    phone_number = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, attrs):
+        phone_number = attrs.get('phone_number')
+        password = attrs.get('password')
+
+        try:
+            # Try to fetch the user by phone_number, assuming phone_number is the unique identifier
+            user = User.objects.get(phone_number=phone_number)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("Invalid phone number or password")
+
+        # Check if the provided password is correct
+        if not user.check_password(password):
+            raise serializers.ValidationError("Invalid phone number or password")
+
+        # Generate refresh and access tokens for the user
+        refresh = RefreshToken.for_user(user)
+        return {
+            'access': str(refresh.access_token),
+            'refresh': str(refresh)
+        }
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

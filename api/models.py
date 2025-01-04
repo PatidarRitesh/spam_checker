@@ -102,3 +102,25 @@ class User(AbstractBaseUser):
     @property
     def is_staff(self):
         return self.is_admin
+
+
+class Contact(models.Model):
+    user = models.ForeignKey(User, related_name='contacts', on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15)
+    name = models.CharField(max_length=100, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.name} ({self.phone_number})'
+
+
+class SpamReport(models.Model):
+    user = models.ForeignKey(User, related_name='spam_reports', on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=15)
+    is_spam = models.BooleanField(default=False)
+    reported_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.phone_number} - {"Spam" if self.is_spam else "Not Spam"}'
+
+
